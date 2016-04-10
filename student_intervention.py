@@ -1,5 +1,5 @@
-#For converting the .ipynb file to .pdf: ipython nbconvert --to pdf student_intervention.ipynb
-
+#For converting the .ipynb file to .pdf: ipython nbconvert --to pdf student_intervention.ipynb  
+#or                                      jupyter nbconvert --to pdf student_intervention.ipynb
 # Import libraries
 import numpy as np
 import pandas as pd
@@ -8,14 +8,13 @@ from sklearn.cross_validation import train_test_split
 from sklearn.cross_validation import StratifiedShuffleSplit
 from sklearn.grid_search import GridSearchCV
 from sklearn.metrics import f1_score
-from sklearn.svm import SVC #for Model 1
+from sklearn.svm import SVC #for Model 1: SVC 
 from sklearn.ensemble import RandomForestClassifier #for Model 2: Randomized Forest
-from sklearn.neighbors import KNeighborsClassifier  #for Model 3: K Nearest Neighbors
-from sklearn.ensemble import BaggingClassifier #for Model 3: K Nearest Neighbors
+from sklearn.neighbors import KNeighborsClassifier  #for Model 3: Bagging Classifier with KNN
+from sklearn.ensemble import BaggingClassifier #for Model 3: Bagging Classifier with KNN
  
 def load_data():
     """Load the student dataset."""
-
     student = pd.read_csv("student-data.csv")
     print "Student data read successfully!"
     return student
@@ -27,19 +26,19 @@ def explore_student_data(student_data):
     n_passed = len(student_data[(student_data["passed"]=="yes")])
     n_failed = len(student_data[(student_data["passed"]=="no")])
     grad_rate = float(n_passed) / float(n_passed+n_failed) * 100.0
+    print "Total number of students: {}".format(n_students)
+    print "Number of students who passed: {}".format(n_passed)
+    print "Number of students who failed: {}".format(n_failed)
+    print "Number of features: {}".format(n_features)
+    print "Graduation rate of the class: {:.2f}%".format(grad_rate)
     feature_cols = list(student_data.columns[:-1])
     target_col = student_data.columns[-1]
     X = student_data[feature_cols]  # feature values for all students\n",
     y = student_data[target_col].replace(['yes', 'no'], [1, 0])  # corresponding targets/labels\n",
-    print "Total number of students: " + str(n_students)
-    print "Number of students who passed: " + str(n_passed)
-    print "Number of students who failed: " + str(n_failed)
-    print "Number of features: " + str(n_features)
-    print "Graduation rate of the class: " + str(grad_rate)
-    print "Feature column(s): " + str(feature_cols)
-    print "Target column: " + str(target_col)
+    print "Feature column(s): {}".format(feature_cols)
+    print "Target column: {}".format(target_col)
     print "Feature values: "
-    print X.head()  # print the first 5 rows"
+    print X.head()  # print the first 5 rows
     return X, y
 
 def preprocess_features(student_data):
@@ -54,7 +53,7 @@ def preprocess_features(student_data):
             # If still non-numeric, convert to one or more dummy variables\n",
         if col_data.dtype == object:
             col_data = pd.get_dummies(col_data, prefix=col)  # e.g. 'school' => 'school_GP', 'school_MS'\n",
-            out_Student_data = out_Student_data.join(col_data)  # collect column(s) in output dataframe\n",
+        out_Student_data = out_Student_data.join(col_data)  # collect column(s) in output dataframe\n",
     return out_Student_data
 
 def strat_shuffle_split(features_data, target_data):
@@ -110,19 +109,20 @@ def predict_labels(clf, features, target):
 
  # Train and predict using different training set sizes
 def train_predict(clf, X_train, y_train, X_test, y_test, grid=False):
+    print "------------------------------------------"
     print "Training set size: " + str(len(X_train))
     train_classifier(clf, X_train, y_train, grid)
     print "F1 score for training set: " + str(predict_labels(clf, X_train, y_train))
     print "F1 score for test set: " + str(predict_labels(clf, X_test, y_test))
-    print "------------------------------------------"
 
 #  # Train and predict using different training set sizes
 # def train_predict(clf, X_train, y_train, X_test, y_test, grid):
+#     print "------------------------------------------"
 #     print "Training set size: " + str(len(X_train))
 #     train_classifier(clf, X_train, y_train, False)
 #     print "F1 score for training set: " + str(predict_labels(clf, X_train, y_train))
 #     print "F1 score for test set: " + str(predict_labels(clf, X_test, y_test))
-#     print "------------------------------------------"
+
 
 
 def create_table(train_num, models, X, y):
@@ -140,7 +140,6 @@ def create_table(train_num, models, X, y):
 
 def fine_tuning_SVM(parameters, SVM_clf, features_data, target_data):
     # Fine-tuning SVM model\n"
-    parameters = {'kernel':('linear','rbf', 'poly','sigmoid'), 'C':[1, 50], 'degree':[3,6]}
     final_svm_clf = GridSearchCV(SVM_clf, parameters, scoring='f1')
     print "%%%%%%%%%%%%%%%%%%%%%%%%%%%%"
     print "Fine-tuning SVM-model: "
@@ -217,7 +216,7 @@ def main():
     models = {"SVM classifier": SVM_clf, "Randomized Forest": RF_clf, "Bagging Classifier with KNN": bagging_clf}
 
     #parameters
-    parameters = {'kernel':('linear','rbf', 'poly','sigmoid'), 'C':[2, 50], 'degree':[3,6]}
+    parameters = {'kernel':('linear','rbf', 'poly','sigmoid'), 'C':[1, 50], 'degree':[3,6]}
 
     #create table
     create_table(train_num, models, X, y)
@@ -225,11 +224,11 @@ def main():
     #Fine-tuning SVM model
     fine_tuning_SVM(parameters, SVM_clf, features_data, target_data)
 
-    #Fine-tuning RF_clf model
+    #tuning RF_clf model
     #RF_clf = RandomForestClassifier(n_estimators=15)
     #RandomForestClassifier(n_estimators=10, criterion='gini', max_depth=None, min_samples_split=2, min_samples_leaf=1, min_weight_fraction_leaf=0.0, max_features='auto', max_leaf_nodes=None, bootstrap=True, oob_score=False, n_jobs=1, random_state=None, verbose=0, warm_start=False, class_weight=None)
 
-    #Fine-tuning bagging_clf
+    #tuning bagging_clf
     #BaggingClassifier(base_estimator=None, n_estimators=10, max_samples=1.0, max_features=1.0, bootstrap=True, bootstrap_features=False, oob_score=False, warm_start=False, n_jobs=1, random_state=None, verbose=0)
     #BaggingClassifier(KNeighborsClassifier(n_neighbors=3),max_samples=0.5, max_features=0.5)
 
@@ -241,15 +240,18 @@ if __name__ == "__main__":
     main()
 
 
-# --------------------------------- RESULTS -----------------------------------
+# --------------------------------- RESULTS (1st run)-----------------------------------
 
 # Student data read successfully!
 # Total number of students: 395
 # Number of students who passed: 265
 # Number of students who failed: 130
 # Number of features: 30
-# Graduation rate of the class: 67.0886075949
-# Feature column(s): ['school', 'sex', 'age', 'address', 'famsize', 'Pstatus', 'Medu', 'Fedu', 'Mjob', 'Fjob', 'reason', 'guardian', 'traveltime', 'studytime', 'failures', 'schoolsup', 'famsup', 'paid', 'activities', 'nursery', 'higher', 'internet', 'romantic', 'famrel', 'freetime', 'goout', 'Dalc', 'Walc', 'health', 'absences']
+# Graduation rate of the class: 67.09%
+# Feature column(s): ['school', 'sex', 'age', 'address', 'famsize', 'Pstatus', 'Medu',
+# 'Fedu', 'Mjob', 'Fjob', 'reason', 'guardian', 'traveltime', 'studytime', 'failures',
+# 'schoolsup', 'famsup', 'paid', 'activities', 'nursery', 'higher', 'internet', 'romantic',
+# 'famrel', 'freetime', 'goout', 'Dalc', 'Walc', 'health', 'absences']
 # Target column: passed
 # Feature values: 
 #   school sex  age address famsize Pstatus  Medu  Fedu     Mjob      Fjob  \
@@ -274,127 +276,463 @@ if __name__ == "__main__":
 # 4        4  
 
 # [5 rows x 30 columns]
-# Number of preprocessed columns: 27
-# Processed feature columns : ['school_GP', 'school_MS', 'sex_F', 'sex_M', 'address_R', 'address_U', 'famsize_GT3', 'famsize_LE3', 'Pstatus_A', 'Pstatus_T', 'Mjob_at_home', 'Mjob_health', 'Mjob_other', 'Mjob_services', 'Mjob_teacher', 'Fjob_at_home', 'Fjob_health', 'Fjob_other', 'Fjob_services', 'Fjob_teacher', 'reason_course', 'reason_home', 'reason_other', 'reason_reputation', 'guardian_father', 'guardian_mother', 'guardian_other']
+# Number of preprocessed columns: 48
+# Processed feature columns : ['school_GP', 'school_MS', 'sex_F', 'sex_M', 'age', 'address_R',
+# 'address_U', 'famsize_GT3', 'famsize_LE3', 'Pstatus_A', 'Pstatus_T', 'Medu', 'Fedu',
+# 'Mjob_at_home', 'Mjob_health', 'Mjob_other', 'Mjob_services', 'Mjob_teacher', 'Fjob_at_home',
+# 'Fjob_health', 'Fjob_other', 'Fjob_services', 'Fjob_teacher', 'reason_course', 'reason_home',
+# 'reason_other', 'reason_reputation', 'guardian_father', 'guardian_mother', 'guardian_other',
+# 'traveltime', 'studytime', 'failures', 'schoolsup', 'famsup', 'paid', 'activities', 'nursery',
+# 'higher', 'internet', 'romantic', 'famrel', 'freetime', 'goout', 'Dalc', 'Walc', 'health', 'absences']
 # Training set (X, y): 300
 # Test set (X, y): 95
 # %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 # Testing Model SVM classifier
 # %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+# ------------------------------------------
 # Training set size: 100
 # Training SVC
-# Done! Training time (secs): 0.00119495391846
+# Done! Training time (secs): 0.0212249755859
 # Predicting labels using SVC
-# Done! Prediction time (secs): 0.000564813613892
-# F1 score for training set: 0.823529411765
+# Done! Prediction time (secs): 0.00140786170959
+# F1 score for training set: 0.857142857143
 # Predicting labels using SVC
-# Done! Prediction time (secs): 0.00131583213806
-# F1 score for test set: 0.795918367347
+# Done! Prediction time (secs): 0.00313591957092
+# F1 score for test set: 0.794238683128
 # ------------------------------------------
 # Training set size: 200
 # Training SVC
-# Done! Training time (secs): 0.00307512283325
+# Done! Training time (secs): 0.0061559677124
 # Predicting labels using SVC
-# Done! Prediction time (secs): 0.00164413452148
-# F1 score for training set: 0.823529411765
+# Done! Prediction time (secs): 0.00441884994507
+# F1 score for training set: 0.878048780488
 # Predicting labels using SVC
-# Done! Prediction time (secs): 0.0016040802002
-# F1 score for test set: 0.78125
+# Done! Prediction time (secs): 0.00425505638123
+# F1 score for test set: 0.820846905537  
 # ------------------------------------------
 # Training set size: 300
 # Training SVC
-# Done! Training time (secs): 0.0054190158844
+# Done! Training time (secs): 0.0102529525757
 # Predicting labels using SVC
-# Done! Prediction time (secs): 0.0032160282135
-# F1 score for training set: 0.807157057654
+# Done! Prediction time (secs): 0.00794816017151
+# F1 score for training set: 0.860986547085
 # Predicting labels using SVC
-# Done! Prediction time (secs): 0.00113105773926
-# F1 score for test set: 0.789808917197
-# ------------------------------------------
+# Done! Prediction time (secs): 0.00298881530762
+# F1 score for test set: 0.802631578947
 # %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 # Testing Model Randomized Forest
 # %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+# ------------------------------------------
 # Training set size: 100
 # Training RandomForestClassifier
-# Done! Training time (secs): 0.0405828952789
+# Done! Training time (secs): 0.0915629863739
 # Predicting labels using RandomForestClassifier
-# Done! Prediction time (secs): 0.00231099128723
-# F1 score for training set: 0.962406015038
+# Done! Prediction time (secs): 0.00312900543213
+# F1 score for training set: 1.0
 # Predicting labels using RandomForestClassifier
-# Done! Prediction time (secs): 0.00241303443909
-# F1 score for test set: 0.683291770574
+# Done! Prediction time (secs): 0.00243496894836
+# F1 score for test set: 0.758139534884
 # ------------------------------------------
 # Training set size: 200
 # Training RandomForestClassifier
-# Done! Training time (secs): 0.035796880722
+# Done! Training time (secs): 0.0659260749817
 # Predicting labels using RandomForestClassifier
-# Done! Prediction time (secs): 0.00321578979492
-# F1 score for training set: 0.935714285714
+# Done! Prediction time (secs): 0.00296401977539
+# F1 score for training set: 1.0
 # Predicting labels using RandomForestClassifier
-# Done! Prediction time (secs): 0.00213003158569
-# F1 score for test set: 0.731884057971
+# Done! Prediction time (secs): 0.00298190116882
+# F1 score for test set: 0.753521126761
 # ------------------------------------------
 # Training set size: 300
 # Training RandomForestClassifier
-# Done! Training time (secs): 0.0431001186371
+# Done! Training time (secs): 0.0698890686035
 # Predicting labels using RandomForestClassifier
-# Done! Prediction time (secs): 0.00332593917847
-# F1 score for training set: 0.922305764411
+# Done! Prediction time (secs): 0.00391697883606
+# F1 score for training set: 1.0
 # Predicting labels using RandomForestClassifier
-# Done! Prediction time (secs): 0.00169396400452
-# F1 score for test set: 0.740740740741
-# ------------------------------------------
+# Done! Prediction time (secs): 0.00318288803101
+# F1 score for test set: 0.780821917808
 # %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 # Testing Model Bagging Classifier with KNN
 # %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+# ------------------------------------------
 # Training set size: 100
 # Training BaggingClassifier
-# Done! Training time (secs): 0.0201480388641
+# Done! Training time (secs): 0.0552060604095
 # Predicting labels using BaggingClassifier
-# Done! Prediction time (secs): 0.00536394119263
-# F1 score for training set: 0.820895522388
+# Done! Prediction time (secs): 0.0113878250122
+# F1 score for training set: 0.847682119205
 # Predicting labels using BaggingClassifier
-# Done! Prediction time (secs): 0.011342048645
-# F1 score for test set: 0.665036674817
+# Done! Prediction time (secs): 0.0168180465698
+# F1 score for test set: 0.767184035477
 # ------------------------------------------
 # Training set size: 200
 # Training BaggingClassifier
-# Done! Training time (secs): 0.0234789848328
+# Done! Training time (secs): 0.0340270996094
 # Predicting labels using BaggingClassifier
-# Done! Prediction time (secs): 0.00930714607239
-# F1 score for training set: 0.81935483871
+# Done! Prediction time (secs): 0.0196621417999
+# F1 score for training set: 0.857142857143
 # Predicting labels using BaggingClassifier
-# Done! Prediction time (secs): 0.00933599472046
-# F1 score for test set: 0.773162939297
+# Done! Prediction time (secs): 0.0194020271301
+# F1 score for test set: 0.770833333333
 # ------------------------------------------
 # Training set size: 300
 # Training BaggingClassifier
-# Done! Training time (secs): 0.0212380886078
+# Done! Training time (secs): 0.0382668972015
 # Predicting labels using BaggingClassifier
-# Done! Prediction time (secs): 0.0169909000397
-# F1 score for training set: 0.837209302326
+# Done! Prediction time (secs): 0.0312039852142
+# F1 score for training set: 0.867579908676
 # Predicting labels using BaggingClassifier
-# Done! Prediction time (secs): 0.00819396972656
-# F1 score for test set: 0.773722627737
-# ------------------------------------------
+# Done! Prediction time (secs): 0.016352891922
+# F1 score for test set: 0.832214765101
 # %%%%%%%%%%%%%%%%%%%%%%%%%%%%
 # Fine-tuning SVM-model: 
 # %%%%%%%%%%%%%%%%%%%%%%%%%%%%
+# ------------------------------------------
 # Training set size: 300
 # Training GridSearchCV
 # Best estimator: SVC(C=1, cache_size=200, class_weight=None, coef0=0.0,
-#   decision_function_shape=None, degree=3, gamma='auto', kernel='rbf',
+#   decision_function_shape=None, degree=3, gamma='auto', kernel='sigmoid',
 #   max_iter=-1, probability=False, random_state=None, shrinking=True,
 #   tol=0.001, verbose=False)
-# Done! Training time (secs): 0.389611005783
+# Done! Training time (secs): 14.7741689682
 # Predicting labels using GridSearchCV
-# Done! Prediction time (secs): 0.00334405899048
+# Done! Prediction time (secs): 0.00496387481689
 # F1 score for training set: 0.802395209581
 # Predicting labels using GridSearchCV
-# Done! Prediction time (secs): 0.00117683410645
+# Done! Prediction time (secs): 0.0019679069519
 # F1 score for test set: 0.805031446541
+# Best parameters for the final tuned SVM model is {'kernel': 'sigmoid', 'C': 1, 'degree': 3}
+# Finished
+
+# --------------------------------- RESULTS (2nd run)-----------------------------------
+
+# Student data read successfully!
+# Total number of students: 395
+# Number of students who passed: 265
+# Number of students who failed: 130
+# Number of features: 30
+# Graduation rate of the class: 67.09%
+# Feature column(s): ['school', 'sex', 'age', 'address', 'famsize', 'Pstatus', 'Medu',
+# 'Fedu', 'Mjob', 'Fjob', 'reason', 'guardian', 'traveltime', 'studytime', 'failures',
+# 'schoolsup', 'famsup', 'paid', 'activities', 'nursery', 'higher', 'internet', 'romantic',
+# 'famrel', 'freetime', 'goout', 'Dalc', 'Walc', 'health', 'absences']
+# Target column: passed
+# Feature values: 
+#   school sex  age address famsize Pstatus  Medu  Fedu     Mjob      Fjob  \
+# 0     GP   F   18       U     GT3       A     4     4  at_home   teacher   
+# 1     GP   F   17       U     GT3       T     1     1  at_home     other   
+# 2     GP   F   15       U     LE3       T     1     1  at_home     other   
+# 3     GP   F   15       U     GT3       T     4     2   health  services   
+# 4     GP   F   16       U     GT3       T     3     3    other     other   
+
+#     ...    higher internet  romantic  famrel  freetime goout Dalc Walc health  \
+# 0   ...       yes       no        no       4         3     4    1    1      3   
+# 1   ...       yes      yes        no       5         3     3    1    1      3   
+# 2   ...       yes      yes        no       4         3     2    2    3      3   
+# 3   ...       yes      yes       yes       3         2     2    1    1      5   
+# 4   ...       yes       no        no       4         3     2    1    2      5   
+
+#   absences  
+# 0        6  
+# 1        4  
+# 2       10  
+# 3        2  
+# 4        4  
+
+# [5 rows x 30 columns]
+# Number of preprocessed columns: 48
+# Processed feature columns : ['school_GP', 'school_MS', 'sex_F', 'sex_M', 'age', 'address_R',
+# 'address_U', 'famsize_GT3', 'famsize_LE3', 'Pstatus_A', 'Pstatus_T', 'Medu', 'Fedu',
+# 'Mjob_at_home', 'Mjob_health', 'Mjob_other', 'Mjob_services', 'Mjob_teacher', 'Fjob_at_home',
+# 'Fjob_health', 'Fjob_other', 'Fjob_services', 'Fjob_teacher', 'reason_course', 'reason_home',
+# 'reason_other', 'reason_reputation', 'guardian_father', 'guardian_mother', 'guardian_other',
+# 'traveltime', 'studytime', 'failures', 'schoolsup', 'famsup', 'paid', 'activities', 'nursery',
+# 'higher', 'internet', 'romantic', 'famrel', 'freetime', 'goout', 'Dalc', 'Walc', 'health', 'absences']
+# Training set (X, y): 300
+# # Test set (X, y): 95
+# %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+# Testing Model SVM classifier
+# %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 # ------------------------------------------
-# Best parameters for the final tuned SVM model is {'kernel': 'rbf', 'C': 1, 'degree': 3}
+# Training set size: 100
+# Training SVC
+# Done! Training time (secs): 0.0201539993286
+# Predicting labels using SVC
+# Done! Prediction time (secs): 0.00121688842773
+# F1 score for training set: 0.873417721519
+# Predicting labels using SVC
+# Done! Prediction time (secs): 0.0026650428772
+# F1 score for test set: 0.807531380753 
+# ------------------------------------------
+# Training set size: 200
+# Training SVC
+# Done! Training time (secs): 0.00469303131104
+# Predicting labels using SVC
+# Done! Prediction time (secs): 0.00315999984741
+# F1 score for training set: 0.875776397516
+# Predicting labels using SVC
+# Done! Prediction time (secs): 0.00277495384216
+# F1 score for test set: 0.776699029126
+# ------------------------------------------
+# Training set size: 300
+# Training SVC
+# Done! Training time (secs): 0.00804090499878
+# Predicting labels using SVC
+# Done! Prediction time (secs): 0.00575590133667
+# F1 score for training set: 0.861471861472
+# Predicting labels using SVC
+# Done! Prediction time (secs): 0.00177502632141
+# F1 score for test set: 0.828947368421
+# %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+# Testing Model Randomized Forest
+# %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+# ------------------------------------------
+# Training set size: 100
+# Training RandomForestClassifier
+# Done! Training time (secs): 0.0384790897369
+# Predicting labels using RandomForestClassifier
+# Done! Prediction time (secs): 0.0025360584259
+# F1 score for training set: 0.991596638655
+# Predicting labels using RandomForestClassifier
+# Done! Prediction time (secs): 0.0024049282074
+# F1 score for test set: 0.742459396752
+# ------------------------------------------
+# Training set size: 200
+# Training RandomForestClassifier
+# Done! Training time (secs): 0.038407087326
+# Predicting labels using RandomForestClassifier
+# Done! Prediction time (secs): 0.00312805175781
+# F1 score for training set: 0.992592592593
+# Predicting labels using RandomForestClassifier
+# Done! Prediction time (secs): 0.00184202194214
+# F1 score for test set: 0.790540540541
+# ------------------------------------------
+# Training set size: 300
+# Training RandomForestClassifier
+# Done! Training time (secs): 0.0364520549774
+# Predicting labels using RandomForestClassifier
+# Done! Prediction time (secs): 0.00276899337769
+# F1 score for training set: 1.0
+# Predicting labels using RandomForestClassifier
+# Done! Prediction time (secs): 0.002201795578
+# F1 score for test set: 0.764705882353
+# %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+# Testing Model Bagging Classifier with KNN
+# %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+# ------------------------------------------
+# Training set size: 100
+# Training BaggingClassifier
+# Done! Training time (secs): 0.0391719341278
+# Predicting labels using BaggingClassifier
+# Done! Prediction time (secs): 0.0062210559845
+# F1 score for training set: 0.828402366864
+# Predicting labels using BaggingClassifier
+# Done! Prediction time (secs): 0.01211810112
+# F1 score for test set: 0.8
+# ------------------------------------------
+# Training set size: 200
+# Training BaggingClassifier
+# Done! Training time (secs): 0.021213054657
+# Predicting labels using BaggingClassifier
+# Done! Prediction time (secs): 0.0112540721893
+# F1 score for training set: 0.830564784053
+# Predicting labels using BaggingClassifier
+# Done! Prediction time (secs): 0.0117828845978
+# F1 score for test set: 0.82428115016
+# ------------------------------------------
+# Training set size: 300
+# Training BaggingClassifier
+# Done! Training time (secs): 0.0230791568756
+# Predicting labels using BaggingClassifier
+# Done! Prediction time (secs): 0.022362947464
+# F1 score for training set: 0.858468677494
+# Predicting labels using BaggingClassifier
+# Done! Prediction time (secs): 0.0105919837952
+# F1 score for test set: 0.835443037975
+# %%%%%%%%%%%%%%%%%%%%%%%%%%%%
+# Fine-tuning SVM-model: 
+# %%%%%%%%%%%%%%%%%%%%%%%%%%%%
+# ------------------------------------------
+# Training set size: 300
+# Training GridSearchCV
+# Best estimator: SVC(C=1, cache_size=200, class_weight=None, coef0=0.0,
+#   decision_function_shape=None, degree=3, gamma='auto', kernel='sigmoid',
+#   max_iter=-1, probability=False, random_state=None, shrinking=True,
+#   tol=0.001, verbose=False)
+# Done! Training time (secs): 11.0430572033
+# Predicting labels using GridSearchCV
+# Done! Prediction time (secs): 0.00558495521545
+# F1 score for training set: 0.802395209581
+# Predicting labels using GridSearchCV
+# Done! Prediction time (secs): 0.001629114151
+# F1 score for test set: 0.805031446541
+# Best parameters for the final tuned SVM model is {'kernel': 'sigmoid', 'C': 1, 'degree': 3}
+# Finished
+
+# --------------------------------- RESULTS (3rd run)-----------------------------------
+
+# Student data read successfully!
+# Total number of students: 395
+# Number of students who passed: 265
+# Number of students who failed: 130
+# Number of features: 30
+# Graduation rate of the class: 67.09%
+# Feature column(s): ['school', 'sex', 'age', 'address', 'famsize', 'Pstatus', 'Medu',
+# 'Fedu', 'Mjob', 'Fjob', 'reason', 'guardian', 'traveltime', 'studytime', 'failures',
+# 'schoolsup', 'famsup', 'paid', 'activities', 'nursery', 'higher', 'internet', 'romantic',
+# 'famrel', 'freetime', 'goout', 'Dalc', 'Walc', 'health', 'absences']
+# Target column: passed
+# Feature values: 
+#   school sex  age address famsize Pstatus  Medu  Fedu     Mjob      Fjob  \
+# 0     GP   F   18       U     GT3       A     4     4  at_home   teacher   
+# 1     GP   F   17       U     GT3       T     1     1  at_home     other   
+# 2     GP   F   15       U     LE3       T     1     1  at_home     other   
+# 3     GP   F   15       U     GT3       T     4     2   health  services   
+# 4     GP   F   16       U     GT3       T     3     3    other     other   
+
+#     ...    higher internet  romantic  famrel  freetime goout Dalc Walc health  \
+# 0   ...       yes       no        no       4         3     4    1    1      3   
+# 1   ...       yes      yes        no       5         3     3    1    1      3   
+# 2   ...       yes      yes        no       4         3     2    2    3      3   
+# 3   ...       yes      yes       yes       3         2     2    1    1      5   
+# 4   ...       yes       no        no       4         3     2    1    2      5   
+
+#   absences  
+# 0        6  
+# 1        4  
+# 2       10  
+# 3        2  
+# 4        4  
+
+# [5 rows x 30 columns]
+# Number of preprocessed columns: 48
+# Processed feature columns : ['school_GP', 'school_MS', 'sex_F', 'sex_M', 'age', 'address_R',
+# 'address_U', 'famsize_GT3', 'famsize_LE3', 'Pstatus_A', 'Pstatus_T', 'Medu', 'Fedu',
+# 'Mjob_at_home', 'Mjob_health', 'Mjob_other', 'Mjob_services', 'Mjob_teacher', 'Fjob_at_home',
+# 'Fjob_health', 'Fjob_other', 'Fjob_services', 'Fjob_teacher', 'reason_course', 'reason_home',
+# 'reason_other', 'reason_reputation', 'guardian_father', 'guardian_mother', 'guardian_other',
+# 'traveltime', 'studytime', 'failures', 'schoolsup', 'famsup', 'paid', 'activities', 'nursery',
+# 'higher', 'internet', 'romantic', 'famrel', 'freetime', 'goout', 'Dalc', 'Walc', 'health', 'absences']
+# Training set (X, y): 300
+# # Test set (X, y): 95
+# %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+# Testing Model SVM classifier
+# %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+# ------------------------------------------
+# Training set size: 100
+# Training SVC
+# Done! Training time (secs): 0.00150203704834
+# Predicting labels using SVC
+# Done! Prediction time (secs): 0.00108504295349
+# F1 score for training set: 0.88198757764
+# Predicting labels using SVC
+# Done! Prediction time (secs): 0.00229406356812
+# F1 score for test set: 0.771929824561
+# ------------------------------------------
+# Training set size: 200
+# Training SVC
+# Done! Training time (secs): 0.00393199920654
+# Predicting labels using SVC
+# Done! Prediction time (secs): 0.00305199623108
+# F1 score for training set: 0.854368932039
+# Predicting labels using SVC
+# Done! Prediction time (secs): 0.00288510322571
+# F1 score for test set: 0.8038585209 
+# ------------------------------------------
+# Training set size: 300
+# Training SVC
+# Done! Training time (secs): 0.008052110672
+# Predicting labels using SVC
+# Done! Prediction time (secs): 0.00697612762451
+# F1 score for training set: 0.835497835498
+# Predicting labels using SVC
+# Done! Prediction time (secs): 0.0022828578949
+# F1 score for test set: 0.857142857143
+# %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+# Testing Model Randomized Forest
+# %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+# ------------------------------------------
+# Training set size: 100
+# Training RandomForestClassifier
+# Done! Training time (secs): 0.0397870540619
+# Predicting labels using RandomForestClassifier
+# Done! Prediction time (secs): 0.00284099578857
+# F1 score for training set: 0.986111111111
+# Predicting labels using RandomForestClassifier
+# Done! Prediction time (secs): 0.00190305709839
+# F1 score for test set: 0.765765765766
+# ------------------------------------------
+# Training set size: 200
+# Training RandomForestClassifier
+# Done! Training time (secs): 0.0403800010681
+# Predicting labels using RandomForestClassifier
+# Done! Prediction time (secs): 0.00187301635742
+# F1 score for training set: 0.996168582375
+# Predicting labels using RandomForestClassifier
+# Done! Prediction time (secs): 0.00238800048828
+# F1 score for test set: 0.768115942029
+# ------------------------------------------
+# Training set size: 300
+# Training RandomForestClassifier
+# Done! Training time (secs): 0.0412130355835
+# Predicting labels using RandomForestClassifier
+# Done! Prediction time (secs): 0.00269794464111
+# F1 score for training set: 0.997555012225
+# Predicting labels using RandomForestClassifier
+# Done! Prediction time (secs): 0.00252890586853
+# F1 score for test set: 0.753623188406
+# %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+# Testing Model Bagging Classifier with KNN
+# %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+# ------------------------------------------
+# Training set size: 100
+# Training BaggingClassifier
+# Done! Training time (secs): 0.0195829868317
+# Predicting labels using BaggingClassifier
+# Done! Prediction time (secs): 0.00685715675354
+# F1 score for training set: 0.857142857143
+# Predicting labels using BaggingClassifier
+# Done! Prediction time (secs): 0.0103139877319
+# F1 score for test set: 0.783847980998
+# ------------------------------------------
+# Training set size: 200
+# Training BaggingClassifier
+# Done! Training time (secs): 0.0213730335236
+# Predicting labels using BaggingClassifier
+# Done! Prediction time (secs): 0.0137138366699
+# F1 score for training set: 0.85342019544
+# Predicting labels using BaggingClassifier
+# Done! Prediction time (secs): 0.0125260353088
+# F1 score for test set: 0.796116504854
+# ------------------------------------------
+# Training set size: 300
+# Training BaggingClassifier
+# Done! Training time (secs): 0.0217368602753
+# Predicting labels using BaggingClassifier
+# Done! Prediction time (secs): 0.0217850208282
+# F1 score for training set: 0.855263157895
+# Predicting labels using BaggingClassifier
+# Done! Prediction time (secs): 0.0103089809418
+# F1 score for test set: 0.82119205298
+# %%%%%%%%%%%%%%%%%%%%%%%%%%%%
+# Fine-tuning SVM-model: 
+# %%%%%%%%%%%%%%%%%%%%%%%%%%%%
+# ------------------------------------------
+# Training set size: 300
+# Training GridSearchCV
+# Best estimator: SVC(C=1, cache_size=200, class_weight=None, coef0=0.0,
+#   decision_function_shape=None, degree=3, gamma='auto', kernel='sigmoid',
+#   max_iter=-1, probability=False, random_state=None, shrinking=True,
+#   tol=0.001, verbose=False)
+# Done! Training time (secs): 11.5507969856
+# Predicting labels using GridSearchCV
+# Done! Prediction time (secs): 0.00459718704224
+# F1 score for training set: 0.802395209581
+# Predicting labels using GridSearchCV
+# Done! Prediction time (secs): 0.00253200531006
+# F1 score for test set: 0.805031446541
+# Best parameters for the final tuned SVM model is {'kernel': 'sigmoid', 'C': 1, 'degree': 3}
 # Finished
 
 # -------------------------------- END -----------------------------------
