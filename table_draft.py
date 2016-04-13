@@ -12,6 +12,30 @@ import numpy as np
 
 # t = Table(dtype=[('a', 'f4'), ('b', 'i4'), ('c', 'S2')])
 
+# #Changes made in the functions train_classifier and predict_labels #########
+# def train_classifier(clf, X_train, y_train, grid=False):
+#     print "Training " + clf.__class__.__name__
+#     start = time.time()
+#     clf.fit(X_train, y_train)
+#     if grid:
+#         clf = clf.best_estimator_
+#         #print "Best estimator: " + str(clf)
+#     end = time.time()
+#     training_time = end - start
+#     #print "Done! Training time (secs): " + str(training_time)
+#     return training_time
+
+# # Predict on training set and compute F1 score
+# def predict_labels(clf, features, target):
+#     print "Predicting labels using " + str(clf.__class__.__name__)
+#     start = time.time()
+#     y_pred = clf.predict(features)
+#     end = time.time()
+#     prediction_time = end - start
+#     #print "Done! Prediction time (secs): " + str(prediction_time)
+#     return (prediction_time, f1_score(target.values, y_pred, pos_label=1))
+# #############################################################################
+
 def new_table(train_num, model, X, y):
     t = Table()
     all_columns= []
