@@ -50,6 +50,7 @@ def all_tables(models, train_num, X, y)
         print "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%"
         #create table
         new_table(train_num, model, X, y)
+    print "-----------------------------------------------"
 
 
 
