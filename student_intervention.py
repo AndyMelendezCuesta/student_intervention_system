@@ -168,9 +168,8 @@ def fine_tuning_SVM(parameters, SVM_clf, features_data, target_data, X_train, y_
     train_predict(final_svm_clf, X_train, y_train, X_test, y_test, grid=True)
     print "Best parameters for the final tuned SVM model is " + str(final_svm_clf.best_params_)
 
-
-##########################################################################################
-################################### Creating Table #######################################
+####################################################################
+########################## Creating Table ##########################
 
 def create_table(model, model_name, train_num, X, y): 
     all_data = [] #right location
@@ -235,8 +234,8 @@ def all_tables(models, train_num, X, y):
         print "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%"
         create_table(model, model_name, train_num, X, y)
 
-#################################################################################################
-#################################################################################################
+####################################################################
+####################################################################
 
 def main():
     """Analyze the student data. Evaluate and validate the
@@ -272,18 +271,24 @@ def main():
     #from sklearn.svm import SVC
     SVM_clf = SVC()
 
-    #Model 2: KNeighborsClassifier
-    #KN_clf = KNeighborsClassifier()
+    ###Code for Predicting, Source: http://scikit-learn.org/stable/tutorial/basic/tutorial.html###
+    # #refer to README.md file for identifying the meaning of the numbers
+    # new_data = [1, 0, 1, 0, 18, 0, 1, 1, 0, 1, 0, 0, 0, 0, 0, 
+    #             0, 1, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 1, 2, 4, 
+    #             1, 1, 1, 1, 1, 1, 1, 1, 0, 5, 2, 1, 1, 1, 5, 0]
+    # print "lenght of new_data:"
+    # print len(new_data)
 
+    # print "Predicting: "
+    # print SVM_clf.predict(new_data)
 
-    #Model 3: Randomized Forest
+    #Model 2: Randomized Forest
     #from sklearn.ensemble import RandomForestClassifier
     RF_clf = RandomForestClassifier(n_estimators=15)
 
-    #Model 4: Bagging with K Nearest Neighbors
+    #Model 3: Bagging with K Nearest Neighbors
     #from sklearn.neighbors import KNeighborsClassifier
     #from sklearn.ensemble import BaggingClassifier
-
     bagging_clf = BaggingClassifier(KNeighborsClassifier(n_neighbors=3),max_samples=0.5, max_features=0.5)
 
     #With training sizes 100, 200, 300
@@ -295,7 +300,7 @@ def main():
     #parameters
     parameters = {'kernel':('linear','rbf', 'poly','sigmoid'), 'C':[1, 50], 'degree':[3,6]}
 
-    #creates CHARTS :P #################################################################
+    ##creates CHARTS##
     create_chart(train_num, models, X, y)
 
     #fine_tuning_SVM(parameters, SVM_clf, features_data, target_data)#original code
@@ -310,6 +315,7 @@ def main():
     #BaggingClassifier(KNeighborsClassifier(n_neighbors=3),max_samples=0.5, max_features=0.5)
 
     all_tables(models, train_num, X, y)
+
 
     print "Finished"
 
@@ -629,9 +635,4 @@ if __name__ == "__main__":
 # Finished
 
 # --------------------------------------- END ------------------------------------------
-
-
-
-
-
 
